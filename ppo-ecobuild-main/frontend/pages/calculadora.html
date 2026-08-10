@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calculadora - EcoBuild</title><link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+<div class="layout">
+<aside class="sidebar"><div class="logo">EcoBuild</div><nav>
+<a href="dashboard.html">Dashboard</a><a href="projetos.html">Meus Projetos</a><a href="calculadora.html" class="active">Calculadora</a><a href="ajuda.html">Ajuda</a><a href="#" id="logout">Sair</a>
+</nav></aside>
+<main class="main">
+<header class="topbar"><div><h1>Calculadora</h1><p>Calcule os materiais necessários para seu projeto.</p></div><div class="usuario"><span>Olá, </span><strong id="nomeUsuario">Carregando...</strong></div></header>
+<a class="page-link" href="projetos.html">← Voltar para projetos</a>
+<section class="calculator-grid">
+<div class="projetos-section">
+<h2>Dados do cálculo</h2>
+<div id="projetoInfo" class="info-box" style="margin-top:20px"><p>Carregando projeto...</p></div>
+<form id="calculadoraForm">
+<div class="form-row">
+<div class="form-group"><label for="area_total">Área da parede (m²)</label><input id="area_total" type="number" min="0.01" step="0.01" required></div>
+<div class="form-group"><label for="espessura_junta">Junta (cm)</label><input id="espessura_junta" type="number" min="0" step="0.1" required></div>
+</div>
+<div class="form-row">
+<div class="form-group"><label for="comprimento_tijolo">Comprimento do tijolo (cm)</label><input id="comprimento_tijolo" type="number" min="0.1" step="0.1" required></div>
+<div class="form-group"><label for="altura_tijolo">Altura do tijolo (cm)</label><input id="altura_tijolo" type="number" min="0.1" step="0.1" required></div>
+</div>
+<div class="form-group"><label for="largura_tijolo">Largura do tijolo (cm)</label><input id="largura_tijolo" type="number" min="0.1" step="0.1" required></div>
+<div id="mensagem" class="mensagem"></div>
+<button type="submit" class="button">Calcular materiais</button>
+</form>
+<div id="resultados" class="result-grid" style="display:none">
+<div class="result-card"><span>Quantidade de tijolos</span><strong id="resultadoTijolos">0</strong></div>
+<div class="result-card"><span>Argamassa estimada</span><strong><span id="resultadoArgamassa">0</span> m³</strong></div>
+<div class="result-card"><span>Área calculada</span><strong><span id="resultadoArea">0</span> m²</strong></div>
+</div>
+</div>
+<div class="projetos-section history"><div class="section-header"><h2>Histórico</h2></div><div id="historico"><p>Carregando histórico...</p></div></div>
+</section>
+</main></div>
+<script src="../js/api.js"></script><script src="../js/calculadora.js"></script>
+</body></html>

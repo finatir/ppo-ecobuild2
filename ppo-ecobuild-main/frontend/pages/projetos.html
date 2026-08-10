@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Meus Projetos - EcoBuild</title>
+
+    <link rel="stylesheet" href="../css/style.css">
+
+</head>
+
+<body>
+
+    <div class="layout">
+
+        <!-- MENU LATERAL -->
+
+        <aside class="sidebar">
+
+            <div class="logo">
+                EcoBuild
+            </div>
+
+            <nav>
+
+                <a href="dashboard.html">
+                    Dashboard
+                </a>
+
+                <a
+                    href="projetos.html"
+                    class="active"
+                >
+                    Meus Projetos
+                </a>
+
+                <a href="calculadora.html">
+                    Calculadora
+                </a>
+
+                <a href="ajuda.html">
+                    Ajuda
+                </a>
+
+                <a
+                    href="#"
+                    id="logout"
+                >
+                    Sair
+                </a>
+
+            </nav>
+
+        </aside>
+
+
+        <!-- CONTEÚDO PRINCIPAL -->
+
+        <main class="main">
+
+            <header class="topbar">
+
+                <div>
+
+                    <h1>
+                        Meus Projetos
+                    </h1>
+
+                    <p>
+                        Gerencie seus projetos de construção.
+                    </p>
+
+                </div>
+
+                <div class="usuario">
+
+                    <span>
+                        Olá,
+                    </span>
+
+                    <strong id="nomeUsuario">
+                        Carregando...
+                    </strong>
+
+                </div>
+
+            </header>
+
+
+            <!-- FORMULÁRIO -->
+
+            <section class="projetos-section">
+
+                <div class="section-header">
+
+                    <h2>
+                        Criar novo projeto
+                    </h2>
+
+                </div>
+
+
+                <form id="projetoForm">
+
+                    <div class="form-group">
+
+                        <label for="nome_projeto">
+                            Nome do projeto
+                        </label>
+
+                        <input
+                            type="text"
+                            id="nome_projeto"
+                            name="nome_projeto"
+                            placeholder="Ex: Casa da Família"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="tijolo_id">
+                            Tipo de tijolo
+                        </label>
+
+                        <select
+                            id="tijolo_id"
+                            name="tijolo_id"
+                            required
+                        >
+
+                            <option value="">
+                                Selecione um tijolo
+                            </option>
+
+                            <option value="1">
+                                Tijolo 9 Furos
+                            </option>
+
+                            <option value="2">
+                                Bloco de Concreto
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <div class="form-row">
+
+                        <div class="form-group">
+
+                            <label for="area_parede">
+                                Área da parede (m²)
+                            </label>
+
+                            <input
+                                type="number"
+                                id="area_parede"
+                                name="area_parede"
+                                placeholder="Ex: 100"
+                                min="0.01"
+                                step="0.01"
+                                required
+                            >
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label for="espessura_junta">
+                                Espessura da junta (cm)
+                            </label>
+
+                            <input
+                                type="number"
+                                id="espessura_junta"
+                                name="espessura_junta"
+                                placeholder="Ex: 1"
+                                min="0"
+                                step="0.1"
+                                required
+                            >
+
+                        </div>
+
+                    </div>
+
+
+                    <div
+                        id="mensagem"
+                        class="mensagem"
+                    ></div>
+
+
+                    <button
+                        type="submit"
+                        class="button"
+                    >
+                        Criar projeto
+                    </button>
+
+                </form>
+
+            </section>
+
+
+            <!-- LISTA DE PROJETOS -->
+
+            <section class="projetos-section">
+
+                <div class="section-header">
+
+                    <div>
+
+                        <h2>
+                            Projetos cadastrados
+                        </h2>
+
+                        <p>
+                            Seus projetos salvos no sistema.
+                        </p>
+
+                    </div>
+
+                    <button
+                        type="button"
+                        id="atualizarProjetos"
+                        class="button"
+                    >
+                        Atualizar
+                    </button>
+
+                </div>
+
+
+                <div
+                    id="listaProjetos"
+                    class="projetos-lista"
+                >
+
+                    <p>
+                        Carregando projetos...
+                    </p>
+
+                </div>
+
+            </section>
+
+        </main>
+
+    </div>
+
+
+    <script src="../js/api.js"></script>
+
+    <script src="../js/projetos.js"></script>
+
+</body>
+
+</html>

@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Ajuda - EcoBuild</title><link rel="stylesheet" href="../css/style.css"></head>
+<body>
+<div class="layout">
+<aside class="sidebar"><div class="logo">EcoBuild</div><nav>
+<a href="dashboard.html">Dashboard</a><a href="projetos.html">Meus Projetos</a><a href="calculadora.html">Calculadora</a><a href="ajuda.html" class="active">Ajuda</a><a href="#" id="logout">Sair</a>
+</nav></aside>
+<main class="main"><header class="topbar"><div><h1>Ajuda</h1><p>Veja como usar o EcoBuild.</p></div><div class="usuario"><span>Olá, </span><strong id="nomeUsuario">Carregando...</strong></div></header>
+<section class="projetos-section">
+<div class="info-box"><h3>1. Crie uma conta</h3><p>Cadastre seu nome, e-mail e senha.</p></div>
+<div class="info-box"><h3>2. Faça login</h3><p>Entre com os dados cadastrados para acessar o sistema.</p></div>
+<div class="info-box"><h3>3. Crie um projeto</h3><p>Informe o tipo de tijolo, a área da parede e a espessura da junta.</p></div>
+<div class="info-box"><h3>4. Use a calculadora</h3><p>Abra um projeto e informe as medidas do tijolo para calcular tijolos e argamassa.</p></div>
+</section></main></div>
+<script src="../js/api.js"></script>
+<script>
+(async () => {
+  const nome = document.getElementById("nomeUsuario");
+  const logout = document.getElementById("logout");
+  try {
+    const r = await fetch(`${API_URL}/auth/me`, {credentials:"include"});
+    if (!r.ok) return window.location.href="login.html";
+    const u = await r.json(); nome.textContent = u.nome;
+  } catch { window.location.href="login.html"; }
+  logout.addEventListener("click", async e => {
+    e.preventDefault();
+    await fetch(`${API_URL}/auth/logout`, {method:"POST",credentials:"include"});
+    window.location.href="login.html";
+  });
+})();
+</script>
+</body></html>

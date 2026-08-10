@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Dashboard - EcoBuild</title>
+
+    <link rel="stylesheet" href="../css/style.css">
+
+</head>
+
+<body>
+
+    <div class="layout">
+
+        <!-- MENU LATERAL -->
+
+        <aside class="sidebar">
+
+            <div class="logo">
+                EcoBuild
+            </div>
+
+            <nav>
+
+                <a
+                    href="dashboard.html"
+                    class="active"
+                >
+                    Dashboard
+                </a>
+
+                <a href="projetos.html">
+                    Meus Projetos
+                </a>
+
+                <a href="calculadora.html">
+                    Calculadora
+                </a>
+
+                <a href="ajuda.html">
+                    Ajuda
+                </a>
+
+                <a
+                    href="#"
+                    id="logout"
+                >
+                    Sair
+                </a>
+
+            </nav>
+
+        </aside>
+
+
+        <!-- CONTEÚDO PRINCIPAL -->
+
+        <main class="main">
+
+            <header class="topbar">
+
+                <div>
+
+                    <h1>
+                        Dashboard
+                    </h1>
+
+                    <p>
+                        Bem-vindo ao EcoBuild
+                    </p>
+
+                </div>
+
+                <div class="usuario">
+
+                    <span>
+                        Olá,
+                    </span>
+
+                    <strong id="nomeUsuario">
+                        Carregando...
+                    </strong>
+
+                </div>
+
+            </header>
+
+
+            <!-- CARDS -->
+
+            <section class="cards">
+
+                <div class="card">
+
+                    <h2>
+                        Projetos
+                    </h2>
+
+                    <div
+                        class="stat"
+                        id="totalProjetos"
+                    >
+                        0
+                    </div>
+
+                    <p>
+                        Projetos cadastrados
+                    </p>
+
+                </div>
+
+
+                <div class="card">
+
+                    <h2>
+                        Calculadora
+                    </h2>
+
+                    <p>
+                        Calcule a quantidade de materiais
+                        para sua construção.
+                    </p>
+
+                    <a
+                        href="calculadora.html"
+                        class="button"
+                    >
+                        Abrir calculadora
+                    </a>
+
+                </div>
+
+
+                <div class="card">
+
+                    <h2>
+                        Projetos
+                    </h2>
+
+                    <p>
+                        Gerencie seus projetos
+                        de construção.
+                    </p>
+
+                    <a
+                        href="projetos.html"
+                        class="button"
+                    >
+                        Ver projetos
+                    </a>
+
+                </div>
+
+            </section>
+
+
+            <!-- PROJETOS RECENTES -->
+
+            <section class="projetos-section">
+
+                <div class="section-header">
+
+                    <h2>
+                        Meus projetos
+                    </h2>
+
+                    <a
+                        href="projetos.html"
+                        class="button"
+                    >
+                        Ver todos
+                    </a>
+
+                </div>
+
+
+                <div
+                    id="listaProjetos"
+                    class="projetos-lista"
+                >
+
+                    <p>
+                        Carregando projetos...
+                    </p>
+
+                </div>
+
+            </section>
+
+        </main>
+
+    </div>
+
+
+    <script src="../js/api.js"></script>
+
+    <script src="../js/dashboard.js"></script>
+
+</body>
+
+</html>
