@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Histórico - EcoBuild</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+<div class="layout">
+    <aside class="sidebar">
+        <div class="logo">EcoBuild</div>
+        <nav>
+            <a href="dashboard.html">Dashboard</a>
+            <a href="projetos.html">Meus Projetos</a>
+            <a href="calculadora.html">Calculadora</a>
+            <a href="historico.html" class="active">Histórico</a>
+            <a href="ajuda.html">Ajuda</a>
+            <a href="#" id="logout">Sair</a>
+        </nav>
+    </aside>
+    <main class="main">
+        <header class="topbar">
+            <div>
+                <h1>Histórico</h1>
+                <p>Consulte os cálculos realizados nos seus projetos.</p>
+            </div>
+            <div class="usuario">
+                <span>Olá, </span>
+                <strong id="nomeUsuario">Carregando...</strong>
+            </div>
+        </header>
+        <section class="projetos-section">
+            <div class="section-header">
+                <h2>Cálculos realizados</h2>
+                <a href="projetos.html" class="button">Meus projetos</a>
+            </div>
+            <div id="historico" class="projetos-lista">
+                <p>Carregando histórico...</p>
+            </div>
+        </section>
+    </main>
+</div>
+<script src="../js/api.js"></script>
+<script src="../js/historico.js"></script>
+</body>
+</html>

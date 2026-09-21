@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: ecobuild
+    runtime: node
+    plan: starter
+    buildCommand: npm --prefix backend install
+    startCommand: node backend/server.js
+    healthCheckPath: /health
+    numInstances: 1
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DB_PATH
+        value: /var/data/ecobuild.db
+      - key: SESSION_SECRET
+        generateValue: true
+    disk:
+      name: ecobuild-data
+      mountPath: /var/data
+      sizeGB: 1

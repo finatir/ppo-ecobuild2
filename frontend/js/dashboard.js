@@ -165,7 +165,7 @@ async function carregarProjetos() {
 
                             </div>
 
-                            <div>
+                            <div class="projeto-acoes">
 
                                 <strong>
                                     ${
@@ -173,6 +173,13 @@ async function carregarProjetos() {
                                     }
                                     m²
                                 </strong>
+
+                                <a
+                                    href="calculadora.html?projeto_id=${projeto.id}"
+                                    class="button"
+                                >
+                                    Calcular
+                                </a>
 
                             </div>
 
