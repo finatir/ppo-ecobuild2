@@ -1,21 +1,27 @@
+databases:
+  - name: ecobuild-db
+    plan: free
+    region: oregon
+    databaseName: ecobuild
+    user: ecobuild_user
+    postgresMajorVersion: "18"
+
 services:
   - type: web
     name: ecobuild
     runtime: node
-    plan: starter
+    plan: free
+    region: oregon
     buildCommand: npm --prefix backend install
     startCommand: node backend/server.js
     healthCheckPath: /health
-    numInstances: 1
     autoDeploy: true
     envVars:
       - key: NODE_ENV
         value: production
-      - key: DB_PATH
-        value: /var/data/ecobuild.db
+      - key: DATABASE_URL
+        fromDatabase:
+          name: ecobuild-db
+          property: connectionString
       - key: SESSION_SECRET
         generateValue: true
-    disk:
-      name: ecobuild-data
-      mountPath: /var/data
-      sizeGB: 1

@@ -1,81 +1,249 @@
 const express = require("express");
-const db = require("../database");
+const { pool } = require("../database");
 const auth = require("../middleware/auth");
+
 const router = express.Router();
 
-router.post("/", auth, (req, res) => {
-    const { nome_projeto, tijolo_id, area_parede, espessura_junta } = req.body;
+router.post("/", auth, async (req, res) => {
+    const nomeProjeto = String(req.body.nome_projeto || "").trim();
+    const tijoloId = Number(req.body.tijolo_id);
+    const areaParede = Number(req.body.area_parede);
+    const espessuraJunta = Number(req.body.espessura_junta);
 
-    if (!nome_projeto || !Number.isInteger(Number(tijolo_id)) ||
-        Number(area_parede) <= 0 || Number(espessura_junta) < 0) {
-        return res.status(400).json({ erro: "Preencha os dados do projeto corretamente." });
+    if (
+        !nomeProjeto ||
+        !Number.isInteger(tijoloId) ||
+        tijoloId <= 0 ||
+        !Number.isFinite(areaParede) ||
+        areaParede <= 0 ||
+        !Number.isFinite(espessuraJunta) ||
+        espessuraJunta < 0
+    ) {
+        return res.status(400).json({
+            erro: "Preencha os dados do projeto corretamente."
+        });
     }
 
-    db.run(
-        `INSERT INTO projetos(usuario_id,tijolo_id,nome_projeto,area_parede,espessura_junta)
-         VALUES(?,?,?,?,?)`,
-        [req.session.usuario.id, Number(tijolo_id), nome_projeto.trim(), Number(area_parede), Number(espessura_junta)],
-        function (err) {
-            if (err) return res.status(500).json({ erro: err.message });
-            res.status(201).json({ mensagem: "Projeto criado", id: this.lastID });
-        }
-    );
-});
-
-router.get("/", auth, (req, res) => {
-    db.all(
-        `SELECT projetos.*, tijolos.tipo, tijolos.comprimento, tijolos.largura, tijolos.altura
-         FROM projetos INNER JOIN tijolos ON projetos.tijolo_id=tijolos.id
-         WHERE projetos.usuario_id=? ORDER BY projetos.data_criacao DESC`,
-        [req.session.usuario.id],
-        (err, rows) => {
-            if (err) return res.status(500).json({ erro: err.message });
-            res.json(rows);
-        }
-    );
-});
-
-router.get("/:id", auth, (req, res) => {
-    db.get(
-        `SELECT projetos.*, tijolos.tipo, tijolos.comprimento, tijolos.largura, tijolos.altura
-         FROM projetos INNER JOIN tijolos ON projetos.tijolo_id=tijolos.id
-         WHERE projetos.id=? AND projetos.usuario_id=?`,
-        [req.params.id, req.session.usuario.id],
-        (err, row) => {
-            if (err) return res.status(500).json({ erro: err.message });
-            if (!row) return res.status(404).json({ erro: "Projeto não encontrado." });
-            res.json(row);
-        }
-    );
-});
-
-router.put("/:id", auth, (req, res) => {
-    const { nome_projeto, tijolo_id, area_parede, espessura_junta } = req.body;
-    db.run(
-        `UPDATE projetos SET nome_projeto=?, tijolo_id=?, area_parede=?, espessura_junta=?
-         WHERE id=? AND usuario_id=?`,
-        [nome_projeto, tijolo_id, area_parede, espessura_junta, req.params.id, req.session.usuario.id],
-        function (err) {
-            if (err) return res.status(500).json({ erro: err.message });
-            if (!this.changes) return res.status(404).json({ erro: "Projeto não encontrado." });
-            res.json({ mensagem: "Projeto atualizado" });
-        }
-    );
-});
-
-router.delete("/:id", auth, (req, res) => {
-    db.run(`DELETE FROM calculos WHERE projeto_id=?`, [req.params.id], err => {
-        if (err) return res.status(500).json({ erro: err.message });
-        db.run(
-            `DELETE FROM projetos WHERE id=? AND usuario_id=?`,
-            [req.params.id, req.session.usuario.id],
-            function (err) {
-                if (err) return res.status(500).json({ erro: err.message });
-                if (!this.changes) return res.status(404).json({ erro: "Projeto não encontrado." });
-                res.json({ mensagem: "Projeto removido" });
-            }
+    try {
+        const tijolo = await pool.query(
+            `SELECT id FROM tijolos WHERE id = $1`,
+            [tijoloId]
         );
-    });
+
+        if (!tijolo.rowCount) {
+            return res.status(400).json({
+                erro: "Tijolo selecionado não existe."
+            });
+        }
+
+        const result = await pool.query(
+            `INSERT INTO projetos (
+                usuario_id,
+                tijolo_id,
+                nome_projeto,
+                area_parede,
+                espessura_junta
+            )
+            VALUES ($1, $2, $3, $4, $5)
+            RETURNING id`,
+            [
+                req.session.usuario.id,
+                tijoloId,
+                nomeProjeto,
+                areaParede,
+                espessuraJunta
+            ]
+        );
+
+        return res.status(201).json({
+            mensagem: "Projeto criado.",
+            id: result.rows[0].id
+        });
+    } catch (err) {
+        console.error("Erro ao criar projeto:", err);
+        return res.status(500).json({
+            erro: "Erro ao criar projeto."
+        });
+    }
+});
+
+router.get("/", auth, async (req, res) => {
+    try {
+        const result = await pool.query(
+            `SELECT
+                projetos.*,
+                tijolos.tipo,
+                tijolos.comprimento,
+                tijolos.largura,
+                tijolos.altura
+             FROM projetos
+             INNER JOIN tijolos ON projetos.tijolo_id = tijolos.id
+             WHERE projetos.usuario_id = $1
+             ORDER BY projetos.data_criacao DESC`,
+            [req.session.usuario.id]
+        );
+
+        return res.json(result.rows);
+    } catch (err) {
+        console.error("Erro ao listar projetos:", err);
+        return res.status(500).json({
+            erro: "Erro ao carregar projetos."
+        });
+    }
+});
+
+router.get("/:id", auth, async (req, res) => {
+    const projetoId = Number(req.params.id);
+
+    if (!Number.isInteger(projetoId) || projetoId <= 0) {
+        return res.status(400).json({
+            erro: "Projeto inválido."
+        });
+    }
+
+    try {
+        const result = await pool.query(
+            `SELECT
+                projetos.*,
+                tijolos.tipo,
+                tijolos.comprimento,
+                tijolos.largura,
+                tijolos.altura
+             FROM projetos
+             INNER JOIN tijolos ON projetos.tijolo_id = tijolos.id
+             WHERE projetos.id = $1
+               AND projetos.usuario_id = $2`,
+            [projetoId, req.session.usuario.id]
+        );
+
+        if (!result.rowCount) {
+            return res.status(404).json({
+                erro: "Projeto não encontrado."
+            });
+        }
+
+        return res.json(result.rows[0]);
+    } catch (err) {
+        console.error("Erro ao buscar projeto:", err);
+        return res.status(500).json({
+            erro: "Erro ao buscar projeto."
+        });
+    }
+});
+
+router.put("/:id", auth, async (req, res) => {
+    const projetoId = Number(req.params.id);
+    const nomeProjeto = String(req.body.nome_projeto || "").trim();
+    const tijoloId = Number(req.body.tijolo_id);
+    const areaParede = Number(req.body.area_parede);
+    const espessuraJunta = Number(req.body.espessura_junta);
+
+    if (
+        !Number.isInteger(projetoId) ||
+        projetoId <= 0 ||
+        !nomeProjeto ||
+        !Number.isInteger(tijoloId) ||
+        tijoloId <= 0 ||
+        !Number.isFinite(areaParede) ||
+        areaParede <= 0 ||
+        !Number.isFinite(espessuraJunta) ||
+        espessuraJunta < 0
+    ) {
+        return res.status(400).json({
+            erro: "Preencha os dados do projeto corretamente."
+        });
+    }
+
+    try {
+        const result = await pool.query(
+            `UPDATE projetos
+             SET nome_projeto = $1,
+                 tijolo_id = $2,
+                 area_parede = $3,
+                 espessura_junta = $4
+             WHERE id = $5
+               AND usuario_id = $6`,
+            [
+                nomeProjeto,
+                tijoloId,
+                areaParede,
+                espessuraJunta,
+                projetoId,
+                req.session.usuario.id
+            ]
+        );
+
+        if (!result.rowCount) {
+            return res.status(404).json({
+                erro: "Projeto não encontrado."
+            });
+        }
+
+        return res.json({
+            mensagem: "Projeto atualizado."
+        });
+    } catch (err) {
+        console.error("Erro ao atualizar projeto:", err);
+        return res.status(500).json({
+            erro: "Erro ao atualizar projeto."
+        });
+    }
+});
+
+router.delete("/:id", auth, async (req, res) => {
+    const projetoId = Number(req.params.id);
+
+    if (!Number.isInteger(projetoId) || projetoId <= 0) {
+        return res.status(400).json({
+            erro: "Projeto inválido."
+        });
+    }
+
+    const client = await pool.connect();
+
+    try {
+        await client.query("BEGIN");
+
+        const ownedProject = await client.query(
+            `SELECT id
+             FROM projetos
+             WHERE id = $1 AND usuario_id = $2
+             FOR UPDATE`,
+            [projetoId, req.session.usuario.id]
+        );
+
+        if (!ownedProject.rowCount) {
+            await client.query("ROLLBACK");
+            return res.status(404).json({
+                erro: "Projeto não encontrado."
+            });
+        }
+
+        await client.query(
+            `DELETE FROM calculos WHERE projeto_id = $1`,
+            [projetoId]
+        );
+
+        await client.query(
+            `DELETE FROM projetos
+             WHERE id = $1 AND usuario_id = $2`,
+            [projetoId, req.session.usuario.id]
+        );
+
+        await client.query("COMMIT");
+
+        return res.json({
+            mensagem: "Projeto removido."
+        });
+    } catch (err) {
+        await client.query("ROLLBACK");
+        console.error("Erro ao remover projeto:", err);
+        return res.status(500).json({
+            erro: "Erro ao remover projeto."
+        });
+    } finally {
+        client.release();
+    }
 });
 
 module.exports = router;

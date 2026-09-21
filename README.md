@@ -2,37 +2,76 @@
 
 Sistema de cálculo de materiais para projetos de construção.
 
+## Banco de dados
+
+O EcoBuild usa **PostgreSQL**. O SQLite foi removido do projeto para que o banco possa ser hospedado pelo Render.
+
+As tabelas são criadas automaticamente na inicialização pela estrutura em `backend/database/schema.sql`.
+
 ## Rodar localmente
 
-1. Entre em `backend/`.
-2. Execute `npm install`.
-3. Execute `npm start`.
-4. Abra `http://localhost:3000`.
+Você precisa ter um PostgreSQL disponível e definir `DATABASE_URL`.
 
-O banco local fica em `backend/database/ecobuild.db`.
+Exemplo:
 
-## Usar Live Server
+```text
+DATABASE_URL=postgresql://postgres:senha@localhost:5432/ecobuild
+```
 
-Também é possível abrir `frontend/index.html` pelo Live Server (normalmente em `127.0.0.1:5500`). O `frontend/js/api.js` direciona as chamadas para `localhost:3000` automaticamente.
+No terminal, defina a variável e depois execute:
 
-## Publicar online com Render
+### Linux / macOS
 
-O projeto já possui `render.yaml` para um único Web Service. O Express serve o frontend e a API no mesmo endereço, então em produção o navegador usa URLs relativas e não precisa conhecer `localhost`.
+```bash
+export DATABASE_URL="postgresql://postgres:senha@localhost:5432/ecobuild"
+export SESSION_SECRET="uma-chave-de-desenvolvimento"
+cd backend
+npm install
+npm start
+```
 
-No Render, conecte este repositório como um Blueprint. O serviço usa:
+### PowerShell
 
-- Build: `npm --prefix backend install`
-- Start: `node backend/server.js`
-- Health check: `/health`
-- Banco: `/var/data/ecobuild.db`
-- Variável `SESSION_SECRET` gerada pelo Render
+```powershell
+$env:DATABASE_URL="postgresql://postgres:senha@localhost:5432/ecobuild"
+$env:SESSION_SECRET="uma-chave-de-desenvolvimento"
+cd backend
+npm install
+npm start
+```
 
-### Atenção ao SQLite
+Depois abra:
 
-O `render.yaml` inclui um Persistent Disk de 1 GB para manter os dados do SQLite entre deploys e reinicializações. No Render, Persistent Disks estão disponíveis para serviços web pagos; sem armazenamento persistente, o filesystem do serviço é efêmero e os dados locais podem ser perdidos em novos deploys/restarts.
+```text
+http://localhost:3000
+```
+
+## Live Server
+
+O `frontend/js/api.js` detecta o Live Server e direciona as chamadas para o backend na porta 3000.
+
+## Publicar no Render gratuitamente
+
+O projeto possui `render.yaml` com um Web Service e um Render Postgres no plano Free.
+
+No Render:
+
+1. Conecte o repositório do GitHub.
+2. Crie um Blueprint usando o `render.yaml` da raiz.
+3. Confirme o plano `free` para o Web Service e o Postgres.
+4. Faça o deploy.
+
+O Blueprint cria o banco e injeta automaticamente a variável `DATABASE_URL` no Web Service.
+
+### Limitações do Free do Render
+
+Segundo a documentação atual do Render, Web Services Free não têm disco persistente e podem entrar em suspensão após 15 minutos sem tráfego. O Render Postgres Free tem 1 GB de armazenamento, é limitado a uma instância Free por workspace e **expira 30 dias após a criação**, com período de carência de 14 dias para upgrade antes da exclusão.
+
+Por isso, esta configuração é adequada para demonstração, testes e apresentação do projeto, mas não deve ser tratada como armazenamento permanente.
 
 ## Estrutura
 
 - `frontend/`: páginas, CSS e JavaScript do navegador.
-- `backend/`: Express, autenticação, rotas e SQLite.
-- `render.yaml`: configuração de deploy online.
+- `backend/`: Express, autenticação, rotas e PostgreSQL.
+- `backend/database/schema.sql`: criação das tabelas e dados iniciais.
+- `render.yaml`: deploy do Web Service + Postgres.

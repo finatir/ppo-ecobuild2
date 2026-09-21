@@ -1,156 +1,72 @@
-PRAGMA foreign_keys = ON;
-
 CREATE TABLE IF NOT EXISTS usuarios (
-
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-
+    id SERIAL PRIMARY KEY,
     nome TEXT NOT NULL,
-
     email TEXT NOT NULL UNIQUE,
-
     senha TEXT NOT NULL
-
 );
 
 CREATE TABLE IF NOT EXISTS tijolos (
-
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-
+    id SERIAL PRIMARY KEY,
     tipo TEXT NOT NULL,
-
-    comprimento REAL NOT NULL,
-
-    largura REAL NOT NULL,
-
-    altura REAL NOT NULL
-
+    comprimento DOUBLE PRECISION NOT NULL,
+    largura DOUBLE PRECISION NOT NULL,
+    altura DOUBLE PRECISION NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS projetos (
-
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-
-    usuario_id INTEGER NOT NULL,
-
-    tijolo_id INTEGER NOT NULL,
-
+    id SERIAL PRIMARY KEY,
+    usuario_id INTEGER NOT NULL REFERENCES usuarios(id),
+    tijolo_id INTEGER NOT NULL REFERENCES tijolos(id),
     nome_projeto TEXT NOT NULL,
-
-    data_criacao DATETIME DEFAULT CURRENT_TIMESTAMP,
-
-    area_parede REAL NOT NULL,
-
-    espessura_junta REAL NOT NULL,
-
-    FOREIGN KEY(usuario_id)
-        REFERENCES usuarios(id),
-
-    FOREIGN KEY(tijolo_id)
-        REFERENCES tijolos(id)
-
+    data_criacao TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    area_parede DOUBLE PRECISION NOT NULL,
+    espessura_junta DOUBLE PRECISION NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS modelos_pre_definidos (
-
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-
+    id SERIAL PRIMARY KEY,
     nome TEXT NOT NULL,
-
     descricao TEXT
-
 );
 
 CREATE TABLE IF NOT EXISTS calculos (
-
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-
-    projeto_id INTEGER NOT NULL,
-
-    modelo_id INTEGER,
-
+    id SERIAL PRIMARY KEY,
+    projeto_id INTEGER NOT NULL REFERENCES projetos(id),
+    modelo_id INTEGER REFERENCES modelos_pre_definidos(id),
     qtd_tijolos INTEGER NOT NULL,
-
-    volume_argamassa REAL NOT NULL,
-
-    area_total REAL NOT NULL,
-
-    data_calculo DATETIME DEFAULT CURRENT_TIMESTAMP,
-
-    FOREIGN KEY(projeto_id)
-        REFERENCES projetos(id),
-
-    FOREIGN KEY(modelo_id)
-        REFERENCES modelos_pre_definidos(id)
-
+    volume_argamassa DOUBLE PRECISION NOT NULL,
+    area_total DOUBLE PRECISION NOT NULL,
+    data_calculo TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS medidas_customizadas (
-
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-
-    calculo_id INTEGER NOT NULL,
-
+    id SERIAL PRIMARY KEY,
+    calculo_id INTEGER NOT NULL REFERENCES calculos(id),
     descricao TEXT NOT NULL,
-
-    valor REAL NOT NULL,
-
-    FOREIGN KEY(calculo_id)
-        REFERENCES calculos(id)
-
+    valor DOUBLE PRECISION NOT NULL
 );
 
-INSERT OR IGNORE INTO tijolos (
-    id,
-    tipo,
-    comprimento,
-    largura,
-    altura
-)
+INSERT INTO tijolos (id, tipo, comprimento, largura, altura)
 VALUES
-(
-    1,
-    'Tijolo 9 Furos',
-    19,
-    9,
-    14
+    (1, 'Tijolo 9 Furos', 19, 9, 14),
+    (2, 'Bloco de Concreto', 29, 14, 19)
+ON CONFLICT (id) DO NOTHING;
+
+INSERT INTO modelos_pre_definidos (id, nome, descricao)
+VALUES
+    (1, 'Residencial', 'Construções residenciais'),
+    (2, 'Comercial', 'Construções comerciais')
+ON CONFLICT (id) DO NOTHING;
+
+-- Mantém a sequência SERIAL alinhada após a carga dos registros iniciais.
+SELECT setval(
+    pg_get_serial_sequence('tijolos', 'id'),
+    GREATEST((SELECT COALESCE(MAX(id), 1) FROM tijolos), 1),
+    true
 );
 
-INSERT OR IGNORE INTO tijolos (
-    id,
-    tipo,
-    comprimento,
-    largura,
-    altura
-)
-VALUES
-(
-    2,
-    'Bloco de Concreto',
-    29,
-    14,
-    19
-);
-
-INSERT OR IGNORE INTO modelos_pre_definidos (
-    id,
-    nome,
-    descricao
-)
-VALUES
-(
-    1,
-    'Residencial',
-    'Construções residenciais'
-);
-
-INSERT OR IGNORE INTO modelos_pre_definidos (
-    id,
-    nome,
-    descricao
-)
-VALUES
-(
-    2,
-    'Comercial',
-    'Construções comerciais'
+SELECT setval(
+    pg_get_serial_sequence('modelos_pre_definidos', 'id'),
+    GREATEST((SELECT COALESCE(MAX(id), 1) FROM modelos_pre_definidos), 1),
+    true
 );
